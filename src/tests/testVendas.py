@@ -36,3 +36,31 @@ class TestSistemaVendas(unittest.TestCase):
         self.assertEqual(produto_passado.nome, nome, "O nome do produto criado está incorreto.")
         self.assertEqual(produto_passado.categoria, categoria, "A categoria do produto criado está incorreta.")
         self.assertEqual(produto_passado.preco, preco, "O preço do produto criado está incorreto.")
+
+     # ----------------------------------------------------
+    # TESTE 2: REGISTRAR VENDA 
+    # ----------------------------------------------------
+
+    @patch('builtins.input', side_effect=['1', '2', '2025-11-01', '0'])
+    @patch('src.services.VendaService.VendaRepository')
+    def test_registrar_venda_coleta_e_registra(self, MockVendaRepository, MockInput):
+        """
+        Testa se o VendaService coleta dados e chama o repositório para salvar.
+        """
+        
+        venda_esperada = [(1, 2, '2025-11-01')]
+
+        # O método registrar_venda coleta dados (input mockado)
+        vendas_coletadas = VendaService.registrar_venda()
+
+        self.assertEqual(vendas_coletadas, venda_esperada, "O método registrar_venda não coletou os dados esperados.")
+
+        # O método registrar_vendas chama o repositório
+        VendaService.registrar_vendas(vendas_coletadas)
+        
+        # Verifica se o repositório foi chamado com o resultado da coleta
+        MockVendaRepository.inserir_vendas.assert_called_once_with(venda_esperada)
+
+
+if __name__ == "__main__":
+    unittest.main()
