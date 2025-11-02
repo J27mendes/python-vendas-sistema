@@ -27,4 +27,4 @@ venv/
 relatorio_media_preco.csv
 relatorio_produtos_mais_vendidos.csv
 relatorio_total_vendas.csv
-relatorio_vendas_categoria.csv
+relatorio_vendas_por_categoria.csv
