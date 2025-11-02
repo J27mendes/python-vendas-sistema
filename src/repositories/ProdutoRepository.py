@@ -67,6 +67,46 @@ class ProdutoRepository:
             conn.close()
         except sqlite3.Error as e:
             print(f"Erro ao carregar os dados simulados: {e}")
-    
-         
-       
+
+    @staticmethod
+    def total_vendas_por_produto() -> List[Tuple[str, float]]:
+        """Calcula o total de vendas por produto"""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            query = '''
+            SELECT p.nome, SUM(v.quantidade * p.preco) AS total_vendas
+            FROM Vendas v
+            INNER JOIN Produtos p ON v.produto_id = p.id
+            GROUP BY p.id
+            ORDER BY total_vendas DESC
+            '''
+            
+            cursor.execute(query)
+            result = cursor.fetchall()
+            conn.close()
+            return result
+        except sqlite3.Error as e:
+            print(f"Erro ao calcular o total de vendas: {e}")
+            return []
+        
+    @staticmethod
+    def media_preco_produtos() -> float:
+        """Calcula a média de preço dos produtos"""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            query = '''SELECT AVG(preco) FROM Produtos'''
+            
+            cursor.execute(query)
+            result = cursor.fetchone()[0]
+            conn.close()
+
+            return 0.0 if result is None else result
+        except sqlite3.Error as e:
+            print(f"Erro ao calcular a média de preços: {e}")
+            return 0.0
