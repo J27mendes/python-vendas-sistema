@@ -23,3 +23,35 @@ class RelatorioService:
         """Calcula as vendas totais por categoria (delegação para o Repository)"""
         return ProdutoRepository.vendas_por_categoria()
     
+def imprimir_relatorios():
+    # Relatório de Total de Vendas por Produto
+    print("\n" + "="*40)
+    print("Relatório de Total de Vendas por Produto:")
+
+    total_vendas = RelatorioService.total_vendas_por_produto()  # Usando o serviço
+    for produto, total in total_vendas:
+        print(f"{produto}: R${total:.2f}")
+    salvar_relatorio_csv(total_vendas, 'relatorio_total_vendas.csv', ['Produto', 'Total de Vendas'])
+    
+    # Relatório de Média de Preço dos Produtos
+    print("\n" + "="*40)
+    print("Média de Preço dos Produtos:")
+    
+    media = RelatorioService.media_preco_produtos()  # Usando o serviço
+    print(f"R${media:.2f}")
+    
+    salvar_relatorio_csv([("Média Geral", media)], 'relatorio_media_preco.csv', ['Descrição', 'Média de Preço'])
+    
+    # Relatório de Produtos Mais Vendidos
+    print("\n" + "="*40)
+    print("Produtos Mais Vendidos (Top 5):")
+    
+    mais_vendidos = RelatorioService.produtos_mais_menos_vendidos()  # Usando o serviço
+    for produto, total in mais_vendidos[:5]:  # Limitando aos top 5
+        print(f"{produto}: {total} unidades")
+    salvar_relatorio_csv(mais_vendidos[:5], 'relatorio_produtos_mais_vendidos.csv', ['Produto', 'Total Vendido'])
+    
+    # Relatório de Vendas por Categoria
+    print("\n" + "="*40)
+    print("Vendas por Categoria:")
+    
