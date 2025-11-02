@@ -1,0 +1,30 @@
+# Arquivos e diretórios gerados pelo Python
+
+# Pastas de cache de bytecode
+__pycache__/
+
+# Arquivos de bytecode compilados
+*.pyc
+
+# Arquivos de log e depuração
+*.log
+
+# Bancos de dados SQLite (se o nome for fixo)
+vendas.db  
+
+# Ignorar o ambiente virtual (se você tiver um)
+venv/
+.venv/
+
+# Arquivos gerados por IDEs (opcional, mas recomendado)
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Relatorios
+relatorio_media_preco.csv
+relatorio_produtos_mais_vendidos.csv
+relatorio_total_vendas.csv
+relatorio_vendas_categoria.csv
