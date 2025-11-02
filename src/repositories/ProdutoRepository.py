@@ -157,4 +157,32 @@ class ProdutoRepository:
             return result
         except sqlite3.Error as e:
             print(f"Erro ao calcular vendas por categoria: {e}")
-            return []       
+            return []    
+
+    @staticmethod
+    def obter_produto_por_id(produto_id: int) -> Produto or None: # type: ignore
+        """
+        Busca um único produto pelo seu ID usando a cláusula WHERE.
+        Retorna um objeto Produto ou None se não for encontrado.
+        """
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            # Consulta SQL com WHERE para filtrar pelo ID
+            # '?' para consulta parametrizada (essencial para segurança)
+            query = "SELECT id, nome, categoria, preco FROM Produtos WHERE id = ?"
+            
+            cursor.execute(query, (produto_id,)) # Passa a tupla com o ID
+            produto_data = cursor.fetchone()
+            conn.close()
+
+            if produto_data:
+                return Produto(*produto_data)
+            else:
+                return None
+                
+        except sqlite3.Error as e:
+            print(f"Erro ao buscar produto por ID: {e}")
+            return None    
