@@ -37,7 +37,7 @@ class TestSistemaVendas(unittest.TestCase):
         self.assertEqual(produto_passado.categoria, categoria, "A categoria do produto criado está incorreta.")
         self.assertEqual(produto_passado.preco, preco, "O preço do produto criado está incorreto.")
 
-     # ----------------------------------------------------
+    # ----------------------------------------------------
     # TESTE 2: REGISTRAR VENDA 
     # ----------------------------------------------------
 
@@ -60,6 +60,44 @@ class TestSistemaVendas(unittest.TestCase):
         
         # Verifica se o repositório foi chamado com o resultado da coleta
         MockVendaRepository.inserir_vendas.assert_called_once_with(venda_esperada)
+
+    # ----------------------------------------------------
+    # TESTE 3: VALIDAÇÃO DE ENTRADA NO REGISTRAR VENDA
+    # ----------------------------------------------------
+
+    @patch('builtins.input', side_effect=[
+        # 1. Entrada Inválida A (ID fora de 1-6)
+        '7', 
+        
+        # 2. Entrada Válida que é Rejeitada na QTD
+        '1',    # ID
+        '0',    # Qtd Inválida (<=0) -> Rejeita, volta ao ID
+        
+        # 3. Entrada Válida que é Rejeitada na Data
+        '1',    # ID
+        '2',    # Qtd Válida
+        '2025-13-30', # Data Inválida -> Rejeita (se a validação datetime estiver correta)
+        
+        # 4. Entrada Válida que DEVE ser aceita
+        '1',    # ID
+        '2',    # Qtd Válida
+        '2025-03-03', # Data Válida -> ACEITA E ADICIONA
+        
+        # 5. Finalizador
+        '0' 
+    ])
+    
+    @patch('builtins.print')
+    def test_registrar_venda_valida_entradas_e_ignora_invalidas(self, MockPrint, MockInput):
+        """
+        Testa se o VendaService rejeita entradas inválidas e só retorna dados válidos.
+        """
+        
+        vendas = VendaService.registrar_venda()
+        
+        venda_esperada = [(1, 2, '2025-03-03')]
+        
+        self.assertEqual(vendas, venda_esperada, "O serviço deve ter filtrado entradas inválidas e retornado a venda correta.")
 
 
 if __name__ == "__main__":
