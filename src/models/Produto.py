@@ -1,0 +1,2 @@
+class Produto:
+    print("produto")

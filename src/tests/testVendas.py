@@ -1,0 +1,2 @@
+class TestSistemaVendas():
+    print("testando")
