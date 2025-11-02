@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from src.services.ProdutoService import ProdutoService
 from src.services.VendaService import VendaService
 from src.utils.Database import criar_banco_de_dados
+from src.services.RelatorioService import imprimir_relatorios
 
 
 def main():
@@ -22,6 +23,7 @@ def main():
       # Registra as vendas no banco de dados (chamada estática)
       VendaService.registrar_vendas(vendas)
       print("\nVendas registradas. Gerando relatórios...")
+      imprimir_relatorios() 
    else:
       print("Nenhuma venda foi registrada.")
 
