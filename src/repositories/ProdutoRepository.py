@@ -110,3 +110,51 @@ class ProdutoRepository:
         except sqlite3.Error as e:
             print(f"Erro ao calcular a média de preços: {e}")
             return 0.0
+        
+    @staticmethod
+    def produtos_mais_menos_vendidos() -> List[Tuple[str, int]]:
+        """Obtém os produtos mais e menos vendidos"""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            query = '''
+            SELECT p.nome, SUM(v.quantidade) AS total_vendido
+            FROM Vendas v
+            INNER JOIN Produtos p ON v.produto_id = p.id
+            GROUP BY p.id
+            ORDER BY total_vendido DESC
+            '''
+            
+            cursor.execute(query)
+            result = cursor.fetchall()
+            conn.close()
+            return result
+        except sqlite3.Error as e:
+            print(f"Erro ao calcular os produtos mais vendidos: {e}")
+            return []
+        
+    @staticmethod
+    def vendas_por_categoria() -> List[Tuple[str, float]]:
+        """Calcula as vendas totais por categoria"""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            query = '''
+            SELECT p.categoria, SUM(v.quantidade * p.preco) AS total_vendas
+            FROM Vendas v
+            INNER JOIN Produtos p ON v.produto_id = p.id
+            GROUP BY p.categoria
+            ORDER BY total_vendas DESC
+            '''
+            
+            cursor.execute(query)
+            result = cursor.fetchall()
+            conn.close()
+            return result
+        except sqlite3.Error as e:
+            print(f"Erro ao calcular vendas por categoria: {e}")
+            return []       
