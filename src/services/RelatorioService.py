@@ -54,4 +54,10 @@ def imprimir_relatorios():
     # Relatório de Vendas por Categoria
     print("\n" + "="*40)
     print("Vendas por Categoria:")
-    
+    vendas_categoria = RelatorioService.vendas_por_categoria()
+    if vendas_categoria:
+        for categoria, total in vendas_categoria:
+            print(f"{categoria}: R${total:.2f}")
+        salvar_relatorio_csv(vendas_categoria, 'relatorio_vendas_por_categoria.csv', ['Categoria', 'Total de Vendas'])
+    else:
+        print("Nenhuma venda registrada por categoria.")
