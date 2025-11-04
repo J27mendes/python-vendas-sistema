@@ -4,3 +4,6 @@ class Produto:
         self.nome = nome
         self.categoria = categoria
         self.preco = preco
+    
+    def __repr__(self):
+        return f"Produto(id={self.id}, nome={self.nome}, categoria={self.categoria}, preco={self.preco})"
