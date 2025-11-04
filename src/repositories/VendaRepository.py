@@ -1,6 +1,7 @@
 import sqlite3
 from src.models.Venda import Venda
 from src.utils.Database import obter_caminho_banco
+from typing import List, Tuple
 
 class VendaRepository:
 
@@ -49,4 +50,27 @@ class VendaRepository:
             conn.close()
             print("Vendas inseridas com sucesso!")
         except sqlite3.Error as e:
-            print(f"Erro ao inserir as vendas: {e}")
+            print(f"Erro ao inserir as vendas: {e}") 
+
+    @staticmethod
+    def obter_vendas_por_produto() -> List[Tuple[int, int, float]]:
+        """Obtém a quantidade de vendas e o total somado de cada produto"""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            # Consulta as vendas agrupadas por produto, somando a quantidade e multiplicando pela quantidade do preço do produto
+            query = '''
+            SELECT p.id, SUM(v.quantidade) AS quantidade_vendida, SUM(v.quantidade * p.preco) AS valor_total
+            FROM Vendas v
+            INNER JOIN Produtos p ON v.produto_id = p.id
+            GROUP BY p.id
+            '''
+            cursor.execute(query)
+            result = cursor.fetchall()
+            conn.close()
+            return result
+        except sqlite3.Error as e:
+            print(f"Erro ao calcular vendas: {e}")
+            return []
