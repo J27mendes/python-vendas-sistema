@@ -14,13 +14,15 @@ def buscar_produto_interativo():
     """Permite ao usuário buscar um produto pelo ID via input."""
     
     print("\n" + "="*50)
-    print("🔎 BUSCA DE PRODUTO POR ID")
+    print("BUSCA DE PRODUTO POR ID")
+    print("exemplo de busca: 1 = A, 2 = B, 3 = C, 4 = D, 5 = E, 6 = F, os exemplos  7 , 8, 9 são destinados a testes!")
     print("="*50)
     
     while True:
         try:
             # 1. Coleta a entrada do usuário
-            entrada = input("Digite entre 1 e 9 o ID do produto que deseja buscar (ou 0 para sair): ")
+            entrada = input("Digite entre 1 e 6 o ID do produto que deseja buscar (ou 0 para sair): ")
+
             
             produto_id = int(entrada)
             
