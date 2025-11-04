@@ -55,10 +55,12 @@ def buscar_produto_interativo():
 
 def main():
    criar_banco_de_dados()
+  
+   ProdutoService.carregar_dados_simulados()
 
    ProdutoService.listar_produtos_e_ids()
-    
-   ProdutoService.carregar_dados_simulados()
+
+   ProdutoService.listar_produtos_vendidos()
 
    buscar_produto_interativo()
 
@@ -78,3 +80,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
