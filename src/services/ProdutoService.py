@@ -1,3 +1,4 @@
+from src.repositories.VendaRepository import VendaRepository
 from src.repositories.ProdutoRepository import ProdutoRepository
 from src.models.Produto import Produto
 
@@ -47,3 +48,27 @@ class ProdutoService:
             print(f"Produto com ID {produto_id} não encontrado.")
         
         return produto
+   
+   @staticmethod
+   def listar_produtos_vendidos():
+        """Exibe a quantidade vendida e o valor total de cada produto"""
+        vendas = VendaRepository.obter_vendas_por_produto()
+        
+        if not vendas:
+            print("Nenhuma venda registrada.")
+            return
+        
+        print("\n" + "="*50)
+        print("🛒 QUANTIDADE E VALOR DE VENDAS POR PRODUTO")
+        print("="*50)
+        print(f"{'ID':<5} {'NOME':<25} {'QUANTIDADE VENDIDA':<20} {'VALOR TOTAL':<15}")
+        print("-" * 50)
+
+        # Listando os produtos vendidos e os totais
+        for venda in vendas:
+            produto_id, quantidade_vendida, valor_total = venda
+            produto = ProdutoRepository.obter_produto_por_id(produto_id)  # Obtém o produto pelo ID
+            if produto:
+                print(f"{produto.id:<5} {produto.nome:<25} {quantidade_vendida:<20} R${valor_total:.2f}")
+        
+        print("-" * 50)
