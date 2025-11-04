@@ -182,7 +182,7 @@ class ProdutoRepository:
                 return Produto(*produto_data)
             else:
                 return None
-                
+            
         except sqlite3.Error as e:
             print(f"Erro ao buscar produto por ID: {e}")
-            return None    
+            return None
