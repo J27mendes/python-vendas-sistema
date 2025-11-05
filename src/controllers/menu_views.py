@@ -2,20 +2,15 @@ import sys
 import os
 import re
 from typing import List, Tuple
-
-from utils.Database import criar_banco_de_dados
+from datetime import datetime
 
 # Adiciona o diretório 'src' ao sys.path para garantir que o Python consiga localizar os módulos
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from datetime import datetime
 from repositories.ProdutoRepository import ProdutoRepository
-from src.repositories.ProdutoRepository import ProdutoRepository
 from repositories.VendaRepository import VendaRepository
 from src.services.ProdutoService import ProdutoService
 from src.services.VendaService import VendaService
-from src.models.Produto import Produto
-from src.models.Venda import Venda
 
 def buscar_produtos_interativo():
     """Permite ao usuário visualizar todos os produtos cadastrados no banco."""
