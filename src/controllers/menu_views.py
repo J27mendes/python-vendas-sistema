@@ -159,3 +159,52 @@ def registrar_venda_interativo():
             # Captura quaisquer outros erros inesperados
             print(f"Ocorreu um erro inesperado: {e}")
 
+def atualizar_venda():
+    """Permite ao usuário atualizar os dados de uma venda existente."""
+    
+    print("\n" + "="*50)
+    print("ATUALIZAR VENDA")
+    print("="*50)
+
+    try:
+        # 1. Solicita o ID da venda a ser atualizada
+        venda_id = int(input("Digite o ID da venda que deseja atualizar: "))
+        
+        # 2. Verifica se a venda existe
+        venda = VendaRepository.obter_venda_por_id(venda_id)
+        
+        if not venda:
+            print("Venda não encontrada!")
+            return
+        
+        # 3. Exibe as informações atuais da venda
+        print(f"\n--- Informações atuais da venda ---")
+        print(f"ID Venda: {venda.id}")
+        print(f"Produto ID: {venda.produto_id}")
+        print(f"Quantidade: {venda.quantidade}")
+        print(f"Data: {venda.data}")
+        print(f"Total: R$ {venda.total:.2f}")
+        print("-------------------------------------\n")
+        
+        # 4. Solicita as novas informações para atualizar
+        novo_produto_id = input(f"Novo Produto ID (deixe em branco para manter {venda.produto_id}): ")
+        nova_quantidade = input(f"Nova Quantidade (deixe em branco para manter {venda.quantidade}): ")
+        nova_data = input(f"Nova Data (deixe em branco para manter {venda.data}): ")
+
+        # 5. Atualiza as informações fornecidas
+        novo_produto_id = int(novo_produto_id) if novo_produto_id else venda.produto_id
+        nova_quantidade = int(nova_quantidade) if nova_quantidade else venda.quantidade
+        nova_data = nova_data if nova_data else venda.data
+
+        # Atualiza a venda no banco de dados
+        venda.produto_id = novo_produto_id
+        venda.quantidade = nova_quantidade
+        venda.data = nova_data
+        
+        VendaRepository.atualizar_venda(venda)
+        print(f"\nVenda atualizada com sucesso!")
+    
+    except ValueError:
+        print("❗ Entrada inválida. Por favor, insira os dados corretamente.")
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
