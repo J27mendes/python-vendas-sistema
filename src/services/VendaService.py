@@ -1,55 +1,56 @@
 import re
 from typing import List, Tuple
 from datetime import datetime
+from src.models.Venda import Venda
 from src.repositories.VendaRepository import VendaRepository
 class VendaService:
+
     @staticmethod
-    def registrar_venda() -> List[Tuple[int, int, str]]:
-        """Função para solicitar a entrada de dados para vendas"""
-        vendas = []
-        while True:
-            try:
-                # 1. ENTRADA E VALIDAÇÃO DE ID
-                produto_id = int(input("Digite o ID do produto (1-6) ou 0 para finalizar: "))
-                
-                if produto_id == 0:
-                    break  
-
-                if produto_id not in range(1, 7): 
-                    print("Produto ID inválido. Digite um valor entre 1 e 6.")
-                    continue
-
-                # 2. ENTRADA E VALIDAÇÃO DE QUANTIDADE
-                quantidade = int(input(f"Digite a quantidade de {produto_id}: "))
-                if quantidade <= 0:
-                    print("Quantidade deve ser um número positivo maior que zero.")
-                    continue
-
-                # 3. ENTRADA E VALIDAÇÃO DE DATA
-                data = input("Digite a data da venda (AAAA-MM-DD): ")
-                
-                if not re.match(r'\d{4}-\d{2}-\d{2}', data):
-                    print("Formato de data inválido. Use o formato AAAA-MM-DD.")
-                    continue
-
-                try:
-                    datetime.strptime(data, '%Y-%m-%d')
-                except ValueError:
-                    print("Data inválida. O mês ou o dia inserido não existe (ex: mês 13 ou dia 30 em fevereiro).")
-                    continue
-                
-                vendas.append((produto_id, quantidade, data))
-                
-            except ValueError:
-                # Captura erros se o usuário digitar texto onde é esperado um número (ID ou Quantidade)
-                print("Entrada inválida! Por favor, insira números válidos.")
-            except Exception as e:
-                # Captura quaisquer outros erros inesperados
-                print(f"Ocorreu um erro inesperado: {e}")
-                
-        return vendas
+    def registrar_venda(produto_id, quantidade, preco_unitario, data):
+        """Registra a venda no banco de dados."""
+        try:
+            # Criação do objeto Venda, incluindo o preco_unitario
+            venda = Venda(produto_id=produto_id, quantidade=quantidade, preco_unitario=preco_unitario, data=data)
+            VendaRepository.criar_venda(venda)
+            return True
+        except Exception as e:
+            print(f"Erro ao registrar a venda: {e}")
+            return False
 
     @staticmethod
     def registrar_vendas(vendas: List[Tuple[int, int, str]]):
         """Chama o repositório para registrar várias vendas no banco"""
         VendaRepository.inserir_vendas(vendas)
+
+    @staticmethod
+    def atualizar_venda(venda_id: int, novo_produto_id: int, nova_quantidade: int, nova_data: str) -> bool:
+        """Atualiza uma venda existente no banco de dados."""
+        try:
+            # Verifica se a venda existe antes de tentar atualizar
+            venda = VendaRepository.obter_venda_por_id(venda_id)
+            if not venda:
+                print("Venda não encontrada!")
+                return False
+            
+            # Atualiza os dados da venda com os novos valores
+            venda.produto_id = novo_produto_id if novo_produto_id else venda.produto_id
+            venda.quantidade = nova_quantidade if nova_quantidade else venda.quantidade
+
+            # Converte nova_data para o tipo datetime.date, se necessário
+            if nova_data:
+                nova_data = nova_data.strip()
+                print(f"Data fornecida para conversão: '{nova_data}'")
+                try:
+                    # Converte nova_data para datetime.date
+                    venda.data = datetime.strptime(nova_data, '%Y-%m-%d').date()
+                    print("Data convertida no service:", venda.data)
+                except ValueError:
+                    print("❗ A data fornecida não está no formato correto (AAAA-MM-DD).")
+                    return False
+            
+            # Chama o repositório para atualizar a venda
+            VendaRepository.atualizar_venda(venda)
+            return True
+        except Exception as e:
+            print(f"Ocorreu um erro ao atualizar a venda: {e}")
+            return False
