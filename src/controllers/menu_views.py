@@ -85,3 +85,20 @@ def atualizar_produto():
     except Exception as e:
         print(f"Ocorreu um erro inesperado: {e}")
 
+def ver_vendas_interativo():
+    """Exibe todas as vendas"""
+    try:
+        vendas = VendaService.obter_vendas()  # Chama o service para obter as vendas
+        
+        if vendas:
+            print("\n" + "="*50)
+            print("LISTA DE VENDAS")
+            print("="*50)
+            for venda in vendas:
+                # Garanta que 'venda.total' é um número e exiba corretamente
+                print(f"Produto ID: {venda.produto_id} | Quantidade: {venda.quantidade} | Data: {venda.data} | Total: R$ {float(venda.total):.2f}")
+        else:
+            print("Nenhuma venda registrada.")
+    except Exception as e:
+        print(f"Ocorreu um erro ao exibir as vendas: {e}")
+
