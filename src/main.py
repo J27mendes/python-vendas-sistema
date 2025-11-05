@@ -4,9 +4,9 @@ import os
 # Adiciona o diretório 'src' ao sys.path para garantir que o Python consiga localizar os módulos
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from services.RelatorioService import imprimir_relatorios
 from utils.Database import criar_banco_de_dados
 from repositories.ProdutoRepository import ProdutoRepository
+from services.RelatorioService import imprimir_relatorios
 from controllers.menu_views import (
     buscar_produtos_interativo,
     atualizar_produto,
