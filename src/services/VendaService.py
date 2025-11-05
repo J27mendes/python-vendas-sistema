@@ -64,3 +64,21 @@ class VendaService:
         except Exception as e:
             print(f"Erro ao obter vendas no service: {e}")
             return []
+        
+    @staticmethod
+    def deletar_venda(venda_id: int) -> bool:
+        """Deleta uma venda existente no banco de dados."""
+        try:
+            # Verifica se a venda existe
+            venda = VendaRepository.obter_venda_por_id(venda_id)
+            if not venda:
+                print("Venda não encontrada!")
+                return False
+            
+            # Chama o repositório para deletar a venda
+            VendaRepository.deletar_venda(venda_id)
+            print(f"Venda ID {venda_id} deletada com sucesso!")
+            return True
+        except Exception as e:
+            print(f"Ocorreu um erro ao deletar a venda: {e}")
+            return False
