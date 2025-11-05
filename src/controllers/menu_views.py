@@ -208,3 +208,25 @@ def atualizar_venda():
         print("❗ Entrada inválida. Por favor, insira os dados corretamente.")
     except Exception as e:
         print(f"Ocorreu um erro inesperado: {e}")
+
+def deletar_venda():
+    """Permite ao usuário deletar uma venda pelo ID."""
+    
+    print("\n" + "="*50)
+    print("DELETAR VENDA")
+    print("="*50)
+
+    try:
+        # 1. Solicita o ID da venda a ser deletada
+        venda_id = int(input("Digite o ID da venda que deseja deletar: "))
+        
+        # 2. Chama o serviço para deletar a venda
+        if VendaService.deletar_venda(venda_id):
+            print(f"\nVenda ID {venda_id} deletada com sucesso!")
+        else:
+            print("Não foi possível deletar a venda.")
+    
+    except ValueError:
+        print("❗ Entrada inválida. Por favor, insira um número para o ID da venda.")
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
