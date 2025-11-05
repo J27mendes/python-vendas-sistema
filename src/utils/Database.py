@@ -33,6 +33,7 @@ def criar_banco_de_dados():
          produto_id INTEGER,
          quantidade INTEGER,
          data DATE,
+         preco_unitario REAL NOT NULL,
          FOREIGN KEY (produto_id) REFERENCES Produtos(id)
       )''')
         
