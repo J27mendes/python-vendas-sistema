@@ -54,3 +54,13 @@ class VendaService:
         except Exception as e:
             print(f"Ocorreu um erro ao atualizar a venda: {e}")
             return False
+        
+    @staticmethod
+    def obter_vendas():
+        """Retorna todas as vendas registradas no banco de dados"""
+        try:
+            vendas = VendaRepository.obter_vendas()  
+            return vendas
+        except Exception as e:
+            print(f"Erro ao obter vendas no service: {e}")
+            return []
