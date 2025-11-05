@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import sqlite3
 from src.models.Venda import Venda
 from src.utils.Database import obter_caminho_banco
@@ -7,7 +8,7 @@ class VendaRepository:
 
     @staticmethod
     def criar_venda(venda: Venda):
-        """Insere uma venda no banco de dados (ajusta a data para string antes de inserir)"""
+        """Insere uma venda no banco de dados (ajusta a data para string antes de inserir) e retorna o ID gerado."""
         try:
             db_path = obter_caminho_banco()
             conn = sqlite3.connect(db_path)
@@ -16,10 +17,17 @@ class VendaRepository:
             # Formata a data para string no formato YYYY-MM-DD para o SQLite
             data_str = venda.data.strftime('%Y-%m-%d')
             
-            cursor.execute('''INSERT INTO Vendas (produto_id, quantidade, data) VALUES (?, ?, ?)''',
-                           (venda.produto_id, venda.quantidade, data_str))
+            # Insere a venda no banco e obtém o id gerado automaticamente
+            cursor.execute('''INSERT INTO Vendas (produto_id, quantidade, data, preco_unitario) 
+                              VALUES (?, ?, ?, ?)''', 
+                           (venda.produto_id, venda.quantidade, data_str, venda.preco_unitario))
+            
+            # Obtém o ID gerado automaticamente para a venda
+            venda.id = cursor.lastrowid  # Atribui o ID gerado pelo banco à venda
+            
             conn.commit()
             conn.close()
+            print(f"Venda criada com sucesso! ID da venda: {venda.id}")
         except sqlite3.Error as e:
             print(f"Erro ao criar venda: {e}")
 
@@ -33,11 +41,30 @@ class VendaRepository:
             cursor.execute("SELECT id, produto_id, quantidade, data FROM Vendas")
             vendas = cursor.fetchall()
             conn.close()
-            # Cria o objeto a partir da tupla do BD
-            return [Venda.from_tuple(venda) for venda in vendas]
+            
+            # Agora, para cada venda, obtemos o preco_unitario
+            vendas_obj = []
+            for venda in vendas:
+                produto_id = venda[1]
+                preco_unitario = VendaRepository.obter_preco_produto(produto_id)
+                # Cria a instância de Venda usando o preco_unitario obtido
+                vendas_obj.append(Venda(venda[1], venda[2], venda[3], preco_unitario))
+            
+            return vendas_obj
         except sqlite3.Error as e:
             print(f"Erro ao obter vendas: {e}")
             return []
+        
+    @staticmethod
+    def obter_preco_produto(produto_id: int) -> float:
+        """Obtém o preço do produto pelo ID"""
+        db_path = obter_caminho_banco()
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT preco FROM Produtos WHERE id = ?", (produto_id,))
+        preco = cursor.fetchone()
+        conn.close()
+        return preco[0] if preco else 0.0
     
     @staticmethod
     def inserir_vendas(vendas: list):
@@ -45,7 +72,7 @@ class VendaRepository:
             db_path = obter_caminho_banco()
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
-            cursor.executemany('''INSERT INTO Vendas (produto_id, quantidade, data) VALUES (?, ?, ?)''', vendas)
+            cursor.executemany('''INSERT INTO Vendas (produto_id, quantidade, data, preco_unitario) VALUES (?, ?, ?)''', vendas)
             conn.commit()
             conn.close()
             print("Vendas inseridas com sucesso!")
@@ -74,3 +101,33 @@ class VendaRepository:
         except sqlite3.Error as e:
             print(f"Erro ao calcular vendas: {e}")
             return []
+        
+    @staticmethod
+    def obter_venda_por_id(venda_id: int) -> Venda or None: # type: ignore
+        """Busca uma venda pelo ID no banco de dados e retorna um objeto Venda"""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+        
+            # Ajuste na consulta SQL para incluir o preco_unitario
+            cursor.execute("""
+                SELECT v.id, v.produto_id, v.quantidade, v.data, p.preco AS preco_unitario
+                FROM Vendas v
+                INNER JOIN Produtos p ON v.produto_id = p.id
+                WHERE v.id = ?
+            """, (venda_id,))
+        
+            venda_data = cursor.fetchone()
+            conn.close()
+        
+            if venda_data:
+                # Separando o id dos outros dados e criando a instância de Venda sem problemas
+                venda_id, produto_id, quantidade, data, preco_unitario = venda_data
+                return Venda(produto_id=produto_id, quantidade=quantidade, data=data, preco_unitario=preco_unitario, id=venda_id)
+            else:
+                return None  # Retorna None se não encontrar a venda
+    
+        except sqlite3.Error as e:
+            print(f"Erro ao buscar venda: {e}")
+        return None
