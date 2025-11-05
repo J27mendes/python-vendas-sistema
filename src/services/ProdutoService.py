@@ -72,3 +72,13 @@ class ProdutoService:
                 print(f"{produto.id:<5} {produto.nome:<25} {quantidade_vendida:<20} R${valor_total:.2f}")
         
         print("-" * 50)
+
+   @staticmethod
+   def buscar_produtos():
+        """Busca todos os produtos no banco de dados e retorna como uma lista."""
+        try:
+            produtos = ProdutoRepository.obter_produtos()  # Chama o método do repositório
+            return produtos
+        except Exception as e:
+            print(f"Ocorreu um erro ao listar os produtos: {e}")
+            return []
