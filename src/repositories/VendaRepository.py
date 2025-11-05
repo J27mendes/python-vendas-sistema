@@ -138,3 +138,37 @@ class VendaRepository:
         # Passa os 5 parâmetros: id, produto_id, quantidade, data e preco_unitario
         preco_unitario = cls.obter_preco_produto(venda_data[1])
         return cls(venda_data[0], venda_data[1], venda_data[2], venda_data[3], preco_unitario)
+    
+    @staticmethod
+    def atualizar_venda(venda: Venda):
+        """Atualiza os dados de uma venda no banco de dados"""
+        try:
+            db_path = obter_caminho_banco()
+            with sqlite3.connect(db_path) as conn:  # Usando o gerenciador de contexto 'with' para garantir o fechamento da conexão
+                cursor = conn.cursor()
+
+                # Verificar se a data é um objeto datetime, e se for, converte para string no formato correto
+                if isinstance(venda.data, (datetime, date)):  # Se for um objeto datetime
+                    data_str = venda.data.strftime('%Y-%m-%d')  # Converte para string no formato correto
+                elif isinstance(venda.data, str):
+                    data_str = venda.data  # Se já for string, verifica o formato
+                else:
+                    raise ValueError("Data fornecida não está no formato 'YYYY-MM-DD'")
+                
+                # Depuração para garantir que estamos com o formato correto
+                print(f"Data formatada para atualização: {data_str}")
+
+                # Realiza o UPDATE no banco de dados
+                cursor.execute('''
+                    UPDATE Vendas 
+                    SET produto_id = ?, quantidade = ?, data = ? 
+                    WHERE id = ?
+                ''', (venda.produto_id, venda.quantidade, data_str, venda.id))
+
+                conn.commit()  # Comita a transação no banco de dados
+                print(f"Venda ID {venda.id} atualizada com sucesso!")
+
+        except sqlite3.Error as e:
+            print(f"Erro ao atualizar venda: {e}")
+        except Exception as e:
+            print(f"Erro inesperado: {e}")
