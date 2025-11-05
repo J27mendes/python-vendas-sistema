@@ -186,3 +186,20 @@ class ProdutoRepository:
         except sqlite3.Error as e:
             print(f"Erro ao buscar produto por ID: {e}")
             return None
+        
+    @staticmethod
+    def atualizar_produto(produto: Produto):
+        """Atualiza um produto existente no banco de dados."""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            query = '''UPDATE Produtos
+                       SET nome = ?, categoria = ?, preco = ?
+                       WHERE id = ?'''
+            cursor.execute(query, (produto.nome, produto.categoria, produto.preco, produto.id))
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Erro ao atualizar produto: {e}")
