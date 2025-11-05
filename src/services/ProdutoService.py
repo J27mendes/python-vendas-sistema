@@ -82,3 +82,27 @@ class ProdutoService:
         except Exception as e:
             print(f"Ocorreu um erro ao listar os produtos: {e}")
             return []
+        
+   @staticmethod
+   def atualizar_produto(produto_id, nome, categoria, preco):
+        """Atualiza as informações de um produto no banco de dados."""
+        try:
+            # Verifica se o produto existe
+            produto = ProdutoRepository.obter_produto_por_id(produto_id)
+            if not produto:
+                print("Produto não encontrado!")
+                return False
+            
+            # Atualiza as informações do produto
+            produto.nome = nome
+            produto.categoria = categoria
+            produto.preco = preco
+
+            # Atualiza no banco de dados
+            ProdutoRepository.atualizar_produto(produto)
+            print(f"Produto {produto_id} atualizado com sucesso!")
+            return True
+        
+        except Exception as e:
+            print(f"Ocorreu um erro ao atualizar o produto: {e}")
+            return False
