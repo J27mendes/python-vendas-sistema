@@ -131,3 +131,10 @@ class VendaRepository:
         except sqlite3.Error as e:
             print(f"Erro ao buscar venda: {e}")
         return None
+    
+    @classmethod
+    def from_tuple(cls, venda_data: tuple):
+        """Cria uma instância de Venda a partir de dados do banco"""
+        # Passa os 5 parâmetros: id, produto_id, quantidade, data e preco_unitario
+        preco_unitario = cls.obter_preco_produto(venda_data[1])
+        return cls(venda_data[0], venda_data[1], venda_data[2], venda_data[3], preco_unitario)
