@@ -38,3 +38,50 @@ def buscar_produtos_interativo():
     except Exception as e:
         print(f"Ocorreu um erro ao listar os produtos: {e}")
 
+def atualizar_produto():
+    """Permite ao usuário atualizar as informações de um produto existente."""
+    
+    print("\n" + "="*50)
+    print("ATUALIZAR PRODUTO")
+    print("="*50)
+
+    try:
+        # 1. Solicita o ID do produto que deseja atualizar
+        produto_id = int(input("Digite o ID do produto que deseja atualizar: "))
+        
+        # 2. Verifica se o produto existe (chama o serviço)
+        produto = ProdutoRepository.obter_produto_por_id(produto_id)
+        
+        if not produto:
+            print("Produto não encontrado!")
+            return
+        
+        # 3. Exibe as informações atuais do produto
+        print(f"\n--- Informações atuais do produto ---")
+        print(f"ID: {produto.id}")
+        print(f"Nome: {produto.nome}")
+        print(f"Categoria: {produto.categoria}")
+        print(f"Preço: R$ {produto.preco:.2f}")
+        print("-------------------------------------\n")
+        
+        # 4. Solicita as novas informações do produto
+        nome = input(f"Novo nome (deixe em branco para manter '{produto.nome}'): ")
+        categoria = input(f"Nova categoria (deixe em branco para manter '{produto.categoria}'): ")
+        preco = input(f"Novo preço (deixe em branco para manter R$ {produto.preco:.2f}): ")
+
+        # 5. Atualiza as informações somente se o usuário fornecer um valor
+        nome = nome if nome else produto.nome
+        categoria = categoria if categoria else produto.categoria
+        preco = float(preco) if preco else produto.preco
+        
+        # 6. Chama o serviço para atualizar o produto
+        if ProdutoService.atualizar_produto(produto_id, nome, categoria, preco):
+            print("\nProduto atualizado com sucesso!")
+        else:
+            print("Não foi possível atualizar o produto.")
+
+    except ValueError:
+        print("❗ Entrada inválida. Por favor, insira os dados corretamente.")
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
+
