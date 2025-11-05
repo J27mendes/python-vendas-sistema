@@ -172,3 +172,19 @@ class VendaRepository:
             print(f"Erro ao atualizar venda: {e}")
         except Exception as e:
             print(f"Erro inesperado: {e}")
+
+    @staticmethod
+    def deletar_venda(venda_id: int):
+        """Deleta uma venda do banco de dados pelo ID"""
+        try:
+            db_path = obter_caminho_banco()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            # Deleta a venda com base no ID
+            cursor.execute("DELETE FROM Vendas WHERE id = ?", (venda_id,))
+            
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"Erro ao deletar venda: {e}")
