@@ -1,41 +1,42 @@
 import sys
 import os
 
-# Adiciona a pasta src ao sys.path para garantir que os módulos possam ser importados
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) 
+sys.path.insert(0, project_root)
 
 import unittest
 from unittest.mock import patch, MagicMock
 from src.services.ProdutoService import ProdutoService
 from src.services.VendaService import VendaService
 from src.models.Produto import Produto 
+from src.models.Venda import Venda
 
 class TestSistemaVendas(unittest.TestCase):
 
     # ----------------------------------------------------
     # TESTE 1: CADASTRAR PRODUTO 
     # ----------------------------------------------------
-    # O patch mira no ProdutoRepository importado dentro do ProdutoService
-
-    @patch('src.services.ProdutoService.ProdutoRepository')
-    def test_cadastrar_produto(self, MockProdutoRepository):
+    
+    @patch('src.repositories.ProdutoRepository.ProdutoRepository')
+    def test_cadastrar_produto(self, MockProdutoRepositoryClass):
         """Testa se o ProdutoService cria o objeto Produto e chama o Repositório corretamente."""
         
-        # 1. Preparação
-        produto_service = ProdutoService()
+        # 1. Preparação: Cria uma instância mock do Repositório 
+        mock_repo_instance = MockProdutoRepositoryClass.return_value
+        
         nome = "Produto Mockado"
         categoria = "Cat Mock"
         preco = 99.99
         
-        # 2. Execução
-        produto_service.cadastrar_produto(nome, categoria, preco)
+        # 2. Execução: Chama o método estático e INJETA o mock como dependência
+        ProdutoService.cadastrar_produto(nome, categoria, preco, mock_repo_instance)
         
         # 3. Verificação (Assertion):
-        
-        MockProdutoRepository.criar_produto.assert_called_once()
+        mock_repo_instance.criar_produto.assert_called_once()
         
         # call_args[0][0] pega o primeiro argumento posicional da primeira chamada
-        produto_passado = MockProdutoRepository.criar_produto.call_args[0][0]
+        produto_passado = mock_repo_instance.criar_produto.call_args[0][0]
         
         # Verifica se o objeto é um Produto e se seus atributos estão corretos
         self.assertIsInstance(produto_passado, Produto)
@@ -46,65 +47,67 @@ class TestSistemaVendas(unittest.TestCase):
     # ----------------------------------------------------
     # TESTE 2: REGISTRAR VENDA 
     # ----------------------------------------------------
-
-    @patch('builtins.input', side_effect=['1', '2', '2025-11-01', '0'])
-    @patch('src.services.VendaService.VendaRepository')
-    def test_registrar_venda_coleta_e_registra(self, MockVendaRepository, MockInput):
-        """
-        Testa se o VendaService coleta dados e chama o repositório para salvar.
-        """
-        
-        venda_esperada = [(1, 2, '2025-11-01')]
-
-        # O método registrar_venda coleta dados (input mockado)
-        vendas_coletadas = VendaService.registrar_venda()
-
-        self.assertEqual(vendas_coletadas, venda_esperada, "O método registrar_venda não coletou os dados esperados.")
-
-        # O método registrar_vendas chama o repositório
-        VendaService.registrar_vendas(vendas_coletadas)
-        
-        # Verifica se o repositório foi chamado com o resultado da coleta
-        MockVendaRepository.inserir_vendas.assert_called_once_with(venda_esperada)
-
-    # ----------------------------------------------------
-    # TESTE 3: VALIDAÇÃO DE ENTRADA NO REGISTRAR VENDA
-    # ----------------------------------------------------
-
-    @patch('builtins.input', side_effect=[
-        # 1. Entrada Inválida A (ID fora de 1-6)
-        '7', 
-        
-        # 2. Entrada Válida que é Rejeitada na QTD
-        '1',    # ID
-        '0',    # Qtd Inválida (<=0) -> Rejeita, volta ao ID
-        
-        # 3. Entrada Válida que é Rejeitada na Data
-        '1',    # ID
-        '2',    # Qtd Válida
-        '2025-13-30', # Data Inválida -> Rejeita (se a validação datetime estiver correta)
-        
-        # 4. Entrada Válida que DEVE ser aceita
-        '1',    # ID
-        '2',    # Qtd Válida
-        '2025-03-03', # Data Válida -> ACEITA E ADICIONA
-        
-        # 5. Finalizador
-        '0' 
-    ])
     
-    @patch('builtins.print')
-    def test_registrar_venda_valida_entradas_e_ignora_invalidas(self, MockPrint, MockInput):
+    @patch('src.repositories.VendaRepository.VendaRepository')
+    def test_registrar_venda_chama_adicionar_corretamente(self, MockVendaRepositoryClass):
         """
-        Testa se o VendaService rejeita entradas inválidas e só retorna dados válidos.
+        Testa se o VendaService calcula o total e chama o método 'adicionar' do Repositório.
         """
         
-        vendas = VendaService.registrar_venda()
-        
-        venda_esperada = [(1, 2, '2025-03-03')]
-        
-        self.assertEqual(vendas, venda_esperada, "O serviço deve ter filtrado entradas inválidas e retornado a venda correta.")
+        # 1. Preparação
+        mock_repo_instance = MockVendaRepositoryClass.return_value
+        produto_id = 1
+        quantidade = 5
+        preco_unitario = 10.00
+        data = '2025-11-01'
+        total_esperado = 50.00 # 5 * 10.00
 
+        # 2. Execução: Chama o método estático e INJETA o mock.
+        VendaService.registrar_venda(produto_id, quantidade, preco_unitario, data, mock_repo_instance)
+
+        # 3. Verificação
+        mock_repo_instance.criar_venda.assert_called_once()
+        
+        venda_passada = mock_repo_instance.criar_venda.call_args[0][0]
+        
+        self.assertIsInstance(venda_passada, Venda)
+        self.assertEqual(venda_passada.produto_id, produto_id)
+        self.assertEqual(venda_passada.quantidade, quantidade)
+        self.assertEqual(venda_passada.data.isoformat(), data) # Verifica a data como string ISO
+        self.assertEqual(venda_passada.total, total_esperado)
+
+    # ----------------------------------------------------
+    # TESTE 3: DELETAR VENDA 
+    # ----------------------------------------------------
+    
+    @patch('src.repositories.VendaRepository.VendaRepository')
+    @patch('src.services.VendaService.print') 
+    def test_deletar_venda_chama_deletar_corretamente(self, MockPrint, MockVendaRepositoryClass):
+        """
+        Testa se o VendaService: 1. Busca a venda (obter_venda_por_id). 2. Deleta o registro (deletar_generico).
+        """
+        
+        # 1. Preparação
+        mock_repo_instance = MockVendaRepositoryClass.return_value
+        venda_id = 5
+        
+        # Mockar a checagem de existência:
+        mock_venda_obj = MagicMock()
+        mock_repo_instance.obter_venda_por_id.return_value = mock_venda_obj
+        
+        # 2. Execução
+        resultado = VendaService.deletar_venda(venda_id, mock_repo_instance)
+
+        # 3. Verificação (Assertion)
+        
+        # O Service deve checar a existência
+        mock_repo_instance.obter_venda_por_id.assert_called_once_with(venda_id)
+        
+        # chama o Service
+        mock_repo_instance.deletar_generico.assert_called_once_with(venda_id)
+        
+        self.assertTrue(resultado, "A deleção deve retornar True.")
+   
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(argv=['first-arg-is-ignored'], exit=False) # Adicionado argv/exit para evitar problemas em alguns IDEs
