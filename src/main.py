@@ -1,21 +1,21 @@
 import sys
 import os
 
-# Adiciona o diretório 'src' ao sys.path para garantir que o Python consiga localizar os módulos
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from utils.Database import criar_banco_de_dados
-from repositories.ProdutoRepository import ProdutoRepository
-from services.RelatorioService import imprimir_relatorios
-from controllers.menu_views import (
+from src.utils.Database import criar_banco_de_dados
+from src.repositories.ProdutoRepository import ProdutoRepository
+from src.repositories.VendaRepository import VendaRepository 
+from src.controllers.menu_views import (
     buscar_produtos_interativo,
     atualizar_produto,
     ver_vendas_interativo,
     registrar_venda_interativo,
     atualizar_venda,
-    deletar_venda
+    deletar_venda,
+    imprimir_relatorios 
 )
 
+produto_repository = ProdutoRepository()
+venda_repository = VendaRepository() 
 
 def menu():
     while True:
@@ -26,24 +26,26 @@ def menu():
         print("4 - Registrar Venda")
         print("5 - Atualizar venda") 
         print("6 - Deletar Venda")
+        print("7 - Imprimir Relatórios") 
         print("0 - Sair")
         
         opcao = input("Escolha a opção desejada: ")
         
         if opcao == "1":
-            buscar_produtos_interativo()
+            buscar_produtos_interativo(produto_repository)
         elif opcao == "2":
-            atualizar_produto()
+            atualizar_produto(produto_repository)
         elif opcao == "3":
-            ver_vendas_interativo()
+            ver_vendas_interativo(venda_repository)
         elif opcao == "4":
-            registrar_venda_interativo() 
+            registrar_venda_interativo(venda_repository, produto_repository) 
         elif opcao == "5":
-            atualizar_venda()
+            atualizar_venda(venda_repository, produto_repository) 
         elif opcao == "6":
-            deletar_venda()
+            deletar_venda(venda_repository)
+        elif opcao == "7": 
+            imprimir_relatorios(produto_repository)
         elif opcao == "0":
-            imprimir_relatorios()
             print("Saindo...")
             break
         else:
@@ -51,8 +53,8 @@ def menu():
 
 def main():
     criar_banco_de_dados()
-    ProdutoRepository.carregar_dados_simulados()
+    produto_repository.carregar_dados_simulados() 
     menu()
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
