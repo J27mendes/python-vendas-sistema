@@ -38,7 +38,7 @@ O sistema oferece um menu interativo com as seguintes operações:
 
 ✔️ Vendas por categoria (GROUP BY).
 
-## 🧱 Arquitetura e Estrutura do Código
+### 🧱 Arquitetura e Estrutura do Código
 
 A arquitetura do projeto é altamente modular e coesa, com separação de responsabilidades em camadas:
 
@@ -53,7 +53,7 @@ A arquitetura do projeto é altamente modular e coesa, com separação de respon
 `se preferir pode ver a estrutura como imagem`
 **Estrutura do projeto** (Veja o diagrama de [estrutura de pastas](docs/estrutura_de_pastas.png)): |
 
-## Padrões Chave Utilizados
+### Padrões Chave Utilizados
 
 **Herança:** Utilizada extensivamente nos Models (BaseModel) e nos Repositórios (BaseRepository), promovendo reuso de código e métodos CRUD genéricos.
 
@@ -87,3 +87,7 @@ Execute o arquivo de teste:
 🡆 python -m unittest src.tests.testVendas 🡄
 
 O resultado deve exibir ... (indicando que os três testes passaram) seguido por OK.
+
+### para melhor visualização dos relatórios em csv
+
+É recomendado instalar a extensão: **Rainbow CSV** no seu VScode
